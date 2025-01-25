@@ -4,7 +4,7 @@ const {extract_positions,HideKey,RevealKey} = require("../modules/extract_positi
 const hashedMessage = "ab6f654cb1d847da6cc007a6affc9ed793f58f75763dd42f671ed32f0513a64c";
 
   // Example usage
-const key = "abcdefghi";
+const key = "ABCDEFGHI";
 const positions = extract_positions(hashedMessage);
 const string1 = '[{"test":"Blood Sugar","date":"2021-06-15","result":"150 mg/dL"}]';
 const string2 = "Patient is responding well to treatment";

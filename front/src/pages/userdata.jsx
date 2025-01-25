@@ -2306,7 +2306,7 @@ export default function UserData() {
                         onChange={handlChangeReducer}
                         value={valueChageReduce?.file_status}
                     />
-                    <label htmlFor=""> all ergies </label>
+                    <label htmlFor=""> allergies </label>
                     <input
                         name="allergies"
                         type="text"

@@ -16,14 +16,11 @@ const NODE_URIS = [
 async function findData(matricule) {
   let data = {};
   const matriculeHashed = Key.hmacSHA256(matricule.toString()).toString("hex"); // Hash the matricule
-  //console.log("Searching for matricule:", matricule);
-  //console.log("Hashed matricule:", matriculeHashed);
 
   // Iterate through each MongoDB URI (node)
   for (const uri of NODE_URIS) {
     const client = new MongoClient(uri);
     try {
-      //console.log(`Connecting to MongoDB URI: ${uri}`);
       await client.connect();
       const db = client.db();
       const collection = db.collection("dossier_medical");
@@ -48,28 +45,19 @@ async function findData(matricule) {
     }
   }
 
-  // If all fields are found, proceed to reveal key and decrypt the data
   if (data.emergency_contact && data.patient_matricule && data.lab_results) {
-      //console.log("All required data found:", data);
 
       // Assuming positions are extracted from the hashed matricule
       const positions = extract_positions(matriculeHashed); // Extract positions from the hashed matricule
 
       // Use RevealKey to reveal the key from the three fields (strings)
       const { modifiedStrings, key } = RevealKey(positions, data.emergency_contact, data.patient_matricule, data.lab_results);
-      //console.log("Modified strings:", modifiedStrings);
-      //console.log("Revealed key:", key);
-
+      
       // Now decrypt each of the modified strings using the extracted key (assuming AES CTR)
       const decryptedStrings = modifiedStrings.map(modifiedString => {
           const decrypted = Aes.Ctr.decrypt(modifiedString, key, 256); // Decrypt each string
           return decrypted; // Convert from bytes to string
       });
-
-      // Display the decrypted strings for the important fields
-      //console.log("Decrypted Emergency Contact:", decryptedStrings[0]);
-      //console.log("Decrypted Patient Matricule:", decryptedStrings[1]);
-      //console.log("Decrypted Lab Results:", decryptedStrings[2]);
 
       // Now update the `data` object with the decrypted values
       data.emergency_contact = decryptedStrings[0];

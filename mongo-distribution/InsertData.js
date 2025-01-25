@@ -30,6 +30,10 @@ const sampleDossier = {
   nom_patient:"Nom Prenom", 
 };
 
+function colorSubstring(str, start, length, colorCode) {
+  const end = start + length;
+  return '    - '+str.slice(0, start) + colorCode + str.slice(start, end) + '\x1b[0m' + str.slice(end);
+}
 
 
 function distributeRandomlyWithEncryption(data) {
@@ -42,10 +46,10 @@ function distributeRandomlyWithEncryption(data) {
       const randomIndex = Math.floor(Math.random() * keys.length);
       const key = keys.splice(randomIndex, 1)[0];
       const encryptedValue = Aes.Ctr.encrypt(data[key], randomKey, 256);
+      console.log(encryptedValue)
       nodeData[i][key] = encryptedValue;
     }
-  }
-
+  } 
   return { nodeData, randomKey };
 }
 
@@ -55,21 +59,18 @@ async function distributeData(data) {
   const HashedId = Key.hmacSHA256(newMatricule.toString()).toString("hex"); // Generate the hashed ID
   const newData = { ...data, patient_matricule: newMatricule.toString() }; // Add the matricule to the data
 
-  // Step 1: Distribute data with encryption
+  //  Distribute data with encryption
   const { nodeData, randomKey } = distributeRandomlyWithEncryption(newData);
 
-  console.log("Node data with encryption:", nodeData);
-  console.log("Random encryption key:", randomKey);
-
-  // Step 2: Extract positions from the hashed ID
+  //  Extract positions from the hashed ID
   const positions = extract_positions(HashedId);
 
-  // Step 3: Define variables to store the fields across all nodes
+  //  Define variables to store the fields across all nodes
   let emergencyContact = '';
   let patientMatricule = '';
   let labResults = '';
 
-  // Step 4: Iterate through all nodes to find the required attributes
+  //  Iterate through all nodes to find the required attributes
   for (let index = 0; index < nodeData.length; index++) {
     const node = nodeData[index];
 
@@ -83,23 +84,15 @@ async function distributeData(data) {
       labResults = node.lab_results;
     }
   }
-
-  console.log("Retrieved fields from all nodes:");
-  console.log("Emergency Contact:", emergencyContact);
-  console.log("Patient Matricule:", patientMatricule);
-  console.log("Lab Results:", labResults);
-
-  // Step 5: Ensure all required fields are found
+  // Ensure all required fields are found
   if (!emergencyContact || !patientMatricule || !labResults) {
     console.error("One or more required fields are missing!");
     return;
   }
-
-  // Step 6: Hide the encryption key inside the fields
+  //  Hide the encryption key inside the fields
   const hiddenKeyStrings = HideKey(randomKey, positions, emergencyContact, patientMatricule, labResults);
-  console.log("Hidden Key Strings:", hiddenKeyStrings);
 
-  // Step 7: Iterate through the nodes again and update the attributes with the hidden keys
+  // Iterate through the nodes again and update the attributes with the hidden keys
   for (let index = 0; index < nodeData.length; index++) {
     const node = nodeData[index];
 
@@ -136,13 +129,13 @@ async function distributeData(data) {
 
 async function main() {
   let i = 0;
-  while (i<=35){
+  while (i<=0){
   await distributeData(sampleDossier);
   console.log("Data distribution complete!");
     i++;
 }
 }
 
-//main().catch(console.error);
+main().catch(console.error);
 
 module.exports = {distributeData}
