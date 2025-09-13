@@ -1,4 +1,4 @@
-# TP3
+# Data encryption in a distributed database for a medical records management application
 Installation of Dependencies
 To run this project, you need to install the following dependencies. Use the command below to install them all at once:
 
